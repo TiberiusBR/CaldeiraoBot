@@ -1,0 +1,4 @@
+nextcord
+python-dotenv
+PyNaCl
+youtube_dl
