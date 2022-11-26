@@ -1,9 +1,9 @@
 import nextcord
 import os
-import logging
 from dotenv import load_dotenv
 from nextcord.ext import commands
 
+from helpers.logger import logger
 from cogs.music import Music
 
 load_dotenv()
@@ -13,7 +13,9 @@ intents.message_content = True
 
 bot = commands.Bot(command_prefix='$', intents=intents)
 
-TESTING_GUILD_ID = 999453445843062874
+@bot.event
+async def on_ready():
+    logger.info('Ready!')
 
 # @bot.event
 # async def on_message(message):
