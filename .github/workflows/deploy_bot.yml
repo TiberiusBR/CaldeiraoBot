@@ -27,7 +27,7 @@ jobs:
           AWS_VERSION_LABEL=${{env.APP_NAME}}-${{env.PIPELINE_ID}}
 
           echo "Creating Source Bundle"
-          zip -r ${{env.APP_NAME}}.zip app.js Dockerfile dockerignore package.json
+          zip -r ${{env.APP_NAME}}.zip index.py cogs helpers Dockerfile requirements.txt
           S3_KEY="$AWS_VERSION_LABEL.zip"
 
           echo "Uploading Source Bundle to S3"
@@ -54,6 +54,9 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       - run: |
           AWS_VERSION_LABEL=${{env.APP_NAME}}-${{env.PIPELINE_ID}}
+
+          touch .env
+          echo BOT_TOKEN=${{env.BOT_TOKEN}}
 
           echo "Installing Elastic Beanstalk Cli"
           python -m pip install --upgrade pip
