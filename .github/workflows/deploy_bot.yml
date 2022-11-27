@@ -35,6 +35,7 @@ jobs:
         version_label: 2
         region: us-east-1
         deployment_package: ${{env.APP_NAME}}.zip
+        existing_bucket_name: caldeirao-bot-bucket
 
 
 #name: deploy_bot
