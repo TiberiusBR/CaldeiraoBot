@@ -1,4 +1,13 @@
 name: Deploy master
+
+env:
+#   BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+  APP_NAME: caldeiraobot-app-v2
+#   S3_BUCKET: caldeirao-bot-bucket
+#   AWS_REGION: us-east-1
+#   AWS_PLATFORM: Docker
+#   PIPELINE_ID: ${{github.run_id}}-${{github.run_number}}
+
 on:
   push:
     branches:
