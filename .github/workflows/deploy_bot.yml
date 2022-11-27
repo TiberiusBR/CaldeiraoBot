@@ -20,8 +20,8 @@ jobs:
 
       - name: Create env file
         run: |
-          touch .env \
-          echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> .env \
+          touch .env 
+          echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> .env 
           cat .env
 
       - name: Create ZIP deployment package
