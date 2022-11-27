@@ -5,6 +5,7 @@ from nextcord.ext import commands
 
 from helpers.logger import logger
 from cogs.music import Music
+from cogs.misc import Misc
 
 load_dotenv()
 
@@ -22,5 +23,6 @@ async def on_ready():
 #     print(f'Message from {message.author}: {message.content}')
 
 bot.add_cog(Music(bot))
+bot.add_cog(Misc(bot))
 
 bot.run(os.getenv('BOT_TOKEN'))
