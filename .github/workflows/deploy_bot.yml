@@ -1,70 +1,98 @@
-name: deploy_bot
-
-env:
-  BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-  APP_NAME: caldeirao-bot-app
-  S3_BUCKET: caldeirao-bot-bucket
-  AWS_REGION: us-east-1
-  AWS_PLATFORM: Docker
-  PIPELINE_ID: ${{github.run_id}}-${{github.run_number}}
-
+name: Deploy master
 on:
   push:
-    branches: [master]
+    branches:
+    - master
 
 jobs:
-  create_eb_version:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Configure AWS credentials 
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      - run: |
-          AWS_VERSION_LABEL=${{env.APP_NAME}}-${{env.PIPELINE_ID}}
 
-          echo "Creating Source Bundle"
-          zip -r ${{env.APP_NAME}}.zip index.py cogs helpers Dockerfile requirements.txt
-          S3_KEY="$AWS_VERSION_LABEL.zip"
+    - name: Checkout source code
+      uses: actions/checkout@v2
 
-          echo "Uploading Source Bundle to S3"
-          aws s3 cp ${{env.APP_NAME}}.zip s3://${{env.S3_BUCKET}}/${S3_KEY} --region ${{env.AWS_REGION}}
+    - name: Generate deployment package
+      run: zip -r ${{env.APP_NAME}}.zip . -x '*.git*'
 
-          echo "Creating Elastic Beanstalk version"
-          aws elasticbeanstalk create-application-version --application-name ${{env.APP_NAME}} --version-label $AWS_VERSION_LABEL --region ${{env.AWS_REGION}} --source-bundle S3Bucket=${{env.S3_BUCKET}},S3Key=${S3_KEY} --auto-create-application
+    - name: Deploy to EB
+      uses: einaregilsson/beanstalk-deploy@v21
+      with:
+        aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        application_name: caldeiraobot-app-v2
+        environment_name: Caldeiraobotappv2-env
+        version_label: 12345
+        region: us-east-1
+        deployment_package: ${{env.APP_NAME}}.zip
 
-  deploy_aws:
-    needs: [create_eb_version]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python 3.8 (needed for eb cli)
-        uses: actions/setup-python@v1
-        with:
-          python-version: "3.8"
-      - name: Configure AWS credentials 
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-id: ${{ secrets.AWS_ID }}
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      - run: |
-          AWS_VERSION_LABEL=${{env.APP_NAME}}-${{env.PIPELINE_ID}}
 
-          touch .env
-          echo BOT_TOKEN=${{env.BOT_TOKEN}}
+#name: deploy_bot
 
-          echo "Installing Elastic Beanstalk Cli"
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install awsebcli --upgrade
-          eb --version
+# env:
+#   BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+#   APP_NAME: caldeiraobot-app-v2
+#   S3_BUCKET: caldeirao-bot-bucket
+#   AWS_REGION: us-east-1
+#   AWS_PLATFORM: Docker
+#   PIPELINE_ID: ${{github.run_id}}-${{github.run_number}}
 
-          echo "Deploy init"
-          eb init -i ${{env.APP_NAME}} -p ${{env.AWS_PLATFORM}} -k ${{secrets.AWS_ID}} --region ${{env.AWS_REGION}}
-          eb deploy ${{env.APP_NAME}} --version ${AWS_VERSION_LABEL}
-          echo "Deploy finished"
+# on:
+#   push:
+#     branches: [master]
+
+# jobs:
+#   create_eb_version:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
+#       - name: Configure AWS credentials 
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ env.AWS_REGION }}
+#       - run: |
+#           AWS_VERSION_LABEL=${{env.APP_NAME}}-${{env.PIPELINE_ID}}
+
+#           echo "Creating Source Bundle"
+#           zip -r ${{env.APP_NAME}}.zip index.py cogs helpers Dockerfile requirements.txt
+#           S3_KEY="$AWS_VERSION_LABEL.zip"
+
+#           echo "Uploading Source Bundle to S3"
+#           aws s3 cp ${{env.APP_NAME}}.zip s3://${{env.S3_BUCKET}}/${S3_KEY} --region ${{env.AWS_REGION}}
+
+#           echo "Creating Elastic Beanstalk version"
+#           aws elasticbeanstalk create-application-version --application-name ${{env.APP_NAME}} --version-label $AWS_VERSION_LABEL --region ${{env.AWS_REGION}} --source-bundle S3Bucket=${{env.S3_BUCKET}},S3Key=${S3_KEY} --auto-create-application
+
+#   deploy_aws:
+#     needs: [create_eb_version]
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
+#       - name: Set up Python 3.8 (needed for eb cli)
+#         uses: actions/setup-python@v1
+#         with:
+#           python-version: "3.8"
+#       - name: Configure AWS credentials 
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-id: ${{ secrets.AWS_ID }}
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ env.AWS_REGION }}
+#       - run: |
+#           AWS_VERSION_LABEL=${{env.APP_NAME}}-${{env.PIPELINE_ID}}
+
+#           touch .env
+#           echo BOT_TOKEN=${{env.BOT_TOKEN}}
+
+#           echo "Installing Elastic Beanstalk Cli"
+#           python -m pip install --upgrade pip
+#           pip install awsebcli --upgrade
+#           eb --version
+
+#           echo "Deploy init"
+#           eb init -i ${{env.APP_NAME}} -p ${{env.AWS_PLATFORM}} -k ${{secrets.AWS_ID}} --region ${{env.AWS_REGION}}
+#           eb deploy ${{env.APP_NAME}} --version ${AWS_VERSION_LABEL}
+#           echo "Deploy finished"
