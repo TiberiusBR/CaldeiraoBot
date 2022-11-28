@@ -3,3 +3,5 @@ python-dotenv
 PyNaCl
 youtube_dl
 pytz
+fastapi
+uvicorn[standard]

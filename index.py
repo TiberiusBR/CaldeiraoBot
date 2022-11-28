@@ -7,6 +7,17 @@ from helpers.logger import logger
 from cogs.music import Music
 from cogs.misc import Misc
 
+import asyncio
+
+from fastapi import FastAPI
+import uvicorn
+
+app = FastAPI()
+
+@app.get("/")
+async def health():
+    return {"Health": "Ok!"}
+
 load_dotenv()
 
 intents = nextcord.Intents.default()
@@ -18,11 +29,14 @@ bot = commands.Bot(command_prefix='$', intents=intents)
 async def on_ready():
     logger.info('Ready!')
 
-# @bot.event
-# async def on_message(message):
-#     print(f'Message from {message.author}: {message.content}')
-
 bot.add_cog(Music(bot))
 bot.add_cog(Misc(bot))
 
-bot.run(os.getenv('BOT_TOKEN'))
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(bot.start(os.getenv('BOT_TOKEN')))
+    await asyncio.sleep(4) #optional sleep for established connection with discord
+    logger.info(f"{bot.user} has connected to Discord!")
+
+if __name__ == "__main__":
+    uvicorn.run(app, port=8000)

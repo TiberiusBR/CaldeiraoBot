@@ -86,10 +86,13 @@ class Music(commands.Cog):
     async def skip(self, interaction: Interaction):
         """Skips current song."""
         voice_protocol = interaction.guild.voice_client
-        if voice_protocol.is_playing():
-            voice_client = interaction.guild.voice_client
-            video_title = voice_client.source.title
-            voice_client.stop()
-            await interaction.send(f"Skipping {video_title}")
+        if voice_protocol != None:
+            if voice_protocol.is_playing():
+                voice_client = interaction.guild.voice_client
+                video_title = voice_client.source.title
+                voice_client.stop()
+                await interaction.send(f"Skipping {video_title}")
+            else:
+                await interaction.send("There's no songs left in the queue.")
         else:
-            await interaction.send("There's no songs left in the queue.")
+            await interaction.send("Not connected to any channel.")
