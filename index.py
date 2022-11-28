@@ -12,11 +12,11 @@ import asyncio
 from fastapi import FastAPI
 import uvicorn
 
-app = FastAPI()
+#app = FastAPI()
 
-@app.get("/")
-async def health():
-    return {"Health": "Ok!"}
+# @app.get("/")
+# async def health():
+#     return {"Health": "Ok!"}
 
 load_dotenv()
 
@@ -32,11 +32,13 @@ async def on_ready():
 bot.add_cog(Music(bot))
 bot.add_cog(Misc(bot))
 
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(bot.start(os.getenv('BOT_TOKEN')))
-    await asyncio.sleep(4) #optional sleep for established connection with discord
-    logger.info(f"{bot.user} has connected to Discord!")
+bot.run(os.getenv('BOT_TOKEN'))
 
-if __name__ == "__main__":
-    uvicorn.run(app, port=8000)
+# @app.on_event("startup")
+# async def startup_event():
+#     asyncio.create_task(bot.start(os.getenv('BOT_TOKEN')))
+#     await asyncio.sleep(4) #optional sleep for established connection with discord
+#     logger.info(f"{bot.user} has connected to Discord!")
+
+# if __name__ == "__main__":
+#     uvicorn.run(app, port=8000)
