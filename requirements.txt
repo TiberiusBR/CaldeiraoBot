@@ -3,5 +3,5 @@ python-dotenv
 PyNaCl
 youtube_dl
 pytz
-fastapi
-uvicorn[standard]
+openai
+Wavelink==1.3.4
