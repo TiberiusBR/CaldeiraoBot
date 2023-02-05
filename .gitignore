@@ -130,3 +130,5 @@ dmypy.json
 
 # misc
 *.csv
+*.webm
+*.part
