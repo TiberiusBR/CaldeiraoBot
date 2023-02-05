@@ -70,12 +70,12 @@ class Music(commands.Cog):
                     voice_client.queue.put(search)
                     embed = nextcord.Embed(title=search.title,
                                            url=search.uri,
-                                           description=f"Added **{search.title}** to queue!")
+                                           description=f"Added **{search.title}** to queue! >{self.parse_time(search.duration)}")
                 else:
                     await voice_client.play(search)
                     embed = nextcord.Embed(title=search.title,
                                            url=search.uri,
-                                           description=f"Playing **{search.title}**!")
+                                           description=f"Playing **{search.title}**! >{self.parse_time(search.duration)}")
             await interaction.send(embed=embed)
         except Exception as ex:
             logger.error(f"A exception ocurred: {ex}")
@@ -103,7 +103,7 @@ class Music(commands.Cog):
                     message += "**There are currently no songs in queue.**"
                 message += "".join(queue_messages)
                 message += empty_msg
-            except:
+            except Exception as ex:
                 logger.error(f"A exception ocurred: {ex}")
             await interaction.send(message)
         except Exception as ex:
