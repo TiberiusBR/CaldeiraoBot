@@ -1,7 +1,7 @@
 name: deploy-to-eb
 
 env:
-  APP_NAME: caldeiraobot-app-v2
+  APP_NAME: caldeiraobot-app-v3
   S3_BUCKET: caldeirao-bot-bucket
   AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_PLATFORM: Docker
