@@ -2,6 +2,7 @@ name: deploy-to-eb
 
 env:
   APP_NAME: caldeiraobot-app-v3
+  ENV_APP_NAME: Caldeiraobotappv3-env
   S3_BUCKET: caldeirao-bot-bucket-sp
   AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_PLATFORM: Docker
@@ -50,4 +51,4 @@ jobs:
           --description "commit-sha-${{ github.sha }}"
 
       - name: Deploy new ElasticBeanstalk Application Version
-        run: aws elasticbeanstalk update-environment --environment-name Caldeiraobotappv2-env --version-label "ver-${{github.run_id}}-${{github.run_number}}"
+        run: aws elasticbeanstalk update-environment --environment-name ${{env.ENV_APP_NAME}} --version-label "ver-${{github.run_id}}-${{github.run_number}}"
