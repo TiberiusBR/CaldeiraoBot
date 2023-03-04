@@ -34,7 +34,7 @@ async def node_connect():
                                                 host=str(os.getenv('LAVALINK_HOST')),
                                                 port=str(os.getenv('LAVALINK_PORT')),
                                                 password=str(os.getenv('LAVALINK_PASSWORD')),
-                                                region="brazil")
+                                                region="brazil") 
         if node._websocket.websocket != None:
             logger.info("Node Connected!")
             break
