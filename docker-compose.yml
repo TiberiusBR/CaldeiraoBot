@@ -1,16 +1,5 @@
 version: '3.5'
 services:
-  lavalink:
-    image: fredboat/lavalink:latest
-    container_name: lavalink_container
-    env_file:
-      - .env
-    restart: unless-stopped
-    ports:
-      - "2333:2333"
-    volumes:
-      - ./docker/application.yml:/opt/Lavalink/application.yml:ro
-    
   bot:
     container_name: caldeirao_bot_container
     build: .
@@ -18,10 +7,6 @@ services:
       - .env
     ports:
       - "8000:8000"
-    links:
-      - lavalink
-    depends_on:
-      - lavalink
 
 volumes:
   bot:
