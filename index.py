@@ -7,7 +7,7 @@ from helpers.logger import logger
 
 from cogs.music import Music
 from cogs.misc import Misc
-from cogs.chat_gpt import ChatGPT
+from cogs.ai import AI
 
 import wavelink
 import time
@@ -45,6 +45,6 @@ async def node_connect():
 
 bot.add_cog(Music(bot))
 bot.add_cog(Misc(bot))
-bot.add_cog(ChatGPT(bot))
+bot.add_cog(AI(bot))
 
 bot.run(os.getenv('BOT_TOKEN'))
