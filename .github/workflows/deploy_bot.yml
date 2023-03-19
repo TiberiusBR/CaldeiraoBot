@@ -4,7 +4,6 @@ env:
   APP_NAME: caldeiraobot-app-v3
   ENV_APP_NAME: Caldeiraobotappv3-env
   S3_BUCKET: caldeirao-bot-bucket-sp
-  AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_PLATFORM: Docker
   PIPELINE_ID: ${{github.run_id}}-${{github.run_number}}
 
@@ -19,20 +18,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{env.AWS_REGION}}
-
-      - name: Get current instance ID and kill it.
+      - name: Deploy dev.
         run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+          unzip awscliv2.zip
+          ./aws/install
+          aws configure set aws_access aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set region ${{secrets.AWS_REGION}}
           echo "Collect autoScaling instances"
           instanceJson=$(aws autoscaling describe-auto-scaling-instances)
           echo "Passing to json"
           echo $instanceJson > output.json
-          jq '.' output.json
           echo "Collecting instanceId"
           instanceid=$(jq '.AutoScalingInstances[0].InstanceId' output.json)
           echo "Parsing InstanceId"
