@@ -33,7 +33,7 @@ jobs:
           echo "Passing to json"
           echo $instanceJson > output.json
           echo "Collecting instanceId"
-          instanceid=$(jq '.AutoScalingInstances[0].InstanceId" output.json)
+          instanceid=$(jq '.AutoScalingInstances[0].InstanceId' output.json)
           echo "Parsing InstanceId"
           instanceid=$(sed -e 's/^"//' -e 's/"$//' <<< $instanceid)
           echo "Terminating instances"
