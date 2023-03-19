@@ -18,27 +18,26 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::577474617401:user/caldeirao-git
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{secrets.AWS_REGION}}
+
       - name: Deploy dev.
-        run:
-        - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" > awscliv2.zip
-        - echo "ok..."
-        - sudo unzip awscliv2.zip
-        - echo "?????"
-        - sudo ./aws/install --update
-        - echo "ok updated"
-        - aws configure set aws_access aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-        - aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        - aws configure set region ${{secrets.AWS_REGION}}
-        - echo "Collect autoScaling instances"
-        - instanceJson=$(aws autoscaling describe-auto-scaling-instances)
-        - echo "Passing to json"
-        - echo $instanceJson > output.json
-        - echo "Collecting instanceId"
-        - instanceid=$(jq '.AutoScalingInstances[0].InstanceId' output.json)
-        - echo "Parsing InstanceId"
-        - instanceid=$(sed -e 's/^"//' -e 's/"$//' <<< $instanceid)
-        - echo "Terminating instances"
-        - aws ec2 terminate-instances --instance-ids $instanceid
+        run: |
+          echo "Collect autoScaling instances"
+          instanceJson=$(aws autoscaling describe-auto-scaling-instances)
+          echo "Passing to json"
+          echo $instanceJson > output.json
+          echo "Collecting instanceId"
+          instanceid=$(jq '.AutoScalingInstances[0].InstanceId' output.json)
+          echo "Parsing InstanceId"
+          instanceid=$(sed -e 's/^"//' -e 's/"$//' <<< $instanceid)
+          echo "Terminating instances"
+          aws ec2 terminate-instances --instance-ids $instanceid
 
       #- name: Upload package to S3 bucket
       #  run: aws s3 cp ${{env.APP_NAME}}.zip s3://${{env.S3_BUCKET}}/
