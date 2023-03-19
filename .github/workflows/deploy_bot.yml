@@ -21,8 +21,11 @@ jobs:
       - name: Deploy dev.
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" > awscliv2.zip
+          echo "ok..."
           sudo unzip awscliv2.zip
+          echo "?????"
           sudo ./aws/install --update
+          echo "ok updated"
           aws configure set aws_access aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set region ${{secrets.AWS_REGION}}
