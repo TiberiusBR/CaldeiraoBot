@@ -10,27 +10,32 @@ env:
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/caldeiraobot:latest
+
       - uses: actions/checkout@v2
-
-      - name: Create env file
-        run: |
-          touch .env 
-          echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> .env 
-          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
-          echo "LAVALINK_HOST=${{ secrets.LAVALINK_HOST }}" >> .env
-          echo "LAVALINK_PASSWORD=${{ secrets.LAVALINK_PASSWORD }}" >> .env
-          echo "LAVALINK_PORT=${{ secrets.LAVALINK_PORT }}" >> .env
-          cat .env
-
-      - name: Create ZIP deployment package
-        run: zip -r ${{env.APP_NAME}}.zip . -x '*.git*'
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -39,16 +44,24 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{env.AWS_REGION}}
 
-      - name: Upload package to S3 bucket
-        run: aws s3 cp ${{env.APP_NAME}}.zip s3://${{env.S3_BUCKET}}/
+      - name: Get current instance ID and kill it.
+        run: instanceJson=$(aws autoscaling describe-auto-scaling-instances)
+          echo $instanceJson > output.json
+          sudo apt install -y jq
+          instanceid=$(jq '.AutoScalingInstances[0].InstanceId" output.json)
+          instanceid=$(sed -e 's/^"//' -e 's/"$//' <<< $instanceid)
+          aws ec2 terminate-instances --instance-ids $instanceid
 
-      - name: Create new ElasticBeanstalk Application Version
-        run: |
-          aws elasticbeanstalk create-application-version \
-          --application-name ${{env.APP_NAME}} \
-          --source-bundle S3Bucket="${{env.S3_BUCKET}}",S3Key="${{env.APP_NAME}}.zip" \
-          --version-label "ver-${{github.run_id}}-${{github.run_number}}" \
-          --description "commit-sha-${{ github.sha }}"
+      #- name: Upload package to S3 bucket
+      #  run: aws s3 cp ${{env.APP_NAME}}.zip s3://${{env.S3_BUCKET}}/
 
-      - name: Deploy new ElasticBeanstalk Application Version
-        run: aws elasticbeanstalk update-environment --environment-name ${{env.ENV_APP_NAME}} --version-label "ver-${{github.run_id}}-${{github.run_number}}"
+      #- name: Create new ElasticBeanstalk Application Version
+      #  run: |
+      #    aws elasticbeanstalk create-application-version \
+      #    --application-name ${{env.APP_NAME}} \
+      #    --source-bundle S3Bucket="${{env.S3_BUCKET}}",S3Key="${{env.APP_NAME}}.zip" \
+      #    --version-label "ver-${{github.run_id}}-${{github.run_number}}" \
+      #    --description "commit-sha-${{ github.sha }}"
+
+      #- name: Deploy new ElasticBeanstalk Application Version
+      #  run: aws elasticbeanstalk update-environment --environment-name ${{env.ENV_APP_NAME}} --version-label "ver-${{github.run_id}}-${{github.run_number}}"
