@@ -32,6 +32,7 @@ jobs:
           instanceJson=$(aws autoscaling describe-auto-scaling-instances)
           echo "Passing to json"
           echo $instanceJson > output.json
+          jq '.' output.json
           echo "Collecting instanceId"
           instanceid=$(jq '.AutoScalingInstances[0].InstanceId' output.json)
           echo "Parsing InstanceId"
