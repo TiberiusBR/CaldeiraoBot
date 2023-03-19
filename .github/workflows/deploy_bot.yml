@@ -28,11 +28,15 @@ jobs:
 
       - name: Get current instance ID and kill it.
         run: |
+          echo "Collect autoScaling instances"
           instanceJson=$(aws autoscaling describe-auto-scaling-instances)
+          echo "Passing to json"
           echo $instanceJson > output.json
-          sudo apt install -y jq
+          echo "Collecting instanceId"
           instanceid=$(jq '.AutoScalingInstances[0].InstanceId" output.json)
+          echo "Parsing InstanceId"
           instanceid=$(sed -e 's/^"//' -e 's/"$//' <<< $instanceid)
+          echo "Terminating instances"
           aws ec2 terminate-instances --instance-ids $instanceid
 
       #- name: Upload package to S3 bucket
