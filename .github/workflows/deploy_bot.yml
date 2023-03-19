@@ -27,7 +27,8 @@ jobs:
           aws-region: ${{env.AWS_REGION}}
 
       - name: Get current instance ID and kill it.
-        run: instanceJson=$(aws autoscaling describe-auto-scaling-instances)
+        run: |
+          instanceJson=$(aws autoscaling describe-auto-scaling-instances)
           echo $instanceJson > output.json
           sudo apt install -y jq
           instanceid=$(jq '.AutoScalingInstances[0].InstanceId" output.json)
