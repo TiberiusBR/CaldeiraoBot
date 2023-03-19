@@ -7,9 +7,10 @@ from helpers.logger import logger
 
 import openai
 
-
+import os
 class AI(commands.Cog):
     def __init__(self, bot) -> None:
+        openai.api_key = os.getenv("OPENAI_API_KEY")
         self.bot = bot
 
     @nextcord.slash_command(name="gpt", description="Ask Bill a question!")

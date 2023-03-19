@@ -44,7 +44,7 @@ async def node_connect():
     
 
 bot.add_cog(Music(bot))
-bot.add_cog(Misc(bot))
+#bot.add_cog(Misc(bot))
 bot.add_cog(AI(bot))
 
 bot.run(os.getenv('BOT_TOKEN'))
